@@ -5,5 +5,5 @@
 
 ### Usage
 
-- Rename zshrc into .zshrc and place it in ~/ directory
-- Run 'source .zshrc'
+- Rename `zshrc` into `.zshrc` and place it in `~/` directory
+- Run `source .zshrc`
