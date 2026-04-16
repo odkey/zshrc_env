@@ -4,7 +4,15 @@
 
 ########################################
 # 環境変数
+
 export LANG=ja_JP.UTF-8
+
+# Homebrew の PATH / 環境変数を先に読み込む
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
 
 
 # 色を使用出来るようにする
@@ -39,7 +47,13 @@ zstyle ':zle:*' word-style unspecified
 # 補完
 # 補完機能を有効にする
 autoload -Uz compinit
-compinit
+
+# 補完キャッシュを使って起動を少し速くする
+if [[ -d ${XDG_CACHE_HOME:-$HOME/.cache} ]]; then
+    compinit -d ${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zcompdump
+else
+    compinit
+fi
 
 # 補完で小文字でも大文字にマッチさせる
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
@@ -140,13 +154,13 @@ alias -g G='| grep'
 
 # C で標準出力をクリップボードにコピーする
 # mollifier delta blog : http://mollifier.hatenablog.com/entry/20100317/p1
-if which pbcopy >/dev/null 2>&1 ; then
+if command -v pbcopy >/dev/null 2>&1 ; then
     # Mac
     alias -g C='| pbcopy'
-elif which xsel >/dev/null 2>&1 ; then
+elif command -v xsel >/dev/null 2>&1 ; then
     # Linux
     alias -g C='| xsel --input --clipboard'
-elif which putclip >/dev/null 2>&1 ; then
+elif command -v putclip >/dev/null 2>&1 ; then
     # Cygwin
     alias -g C='| putclip'
 fi
@@ -170,20 +184,18 @@ esac
 # vim:set ft=zsh:
 
 
-# Followings is custom properties by Yota Odaka [@odkey](https://github.com/odkey/)  
-  
+
+# Followings is custom properties by Yota Odaka [@odkey](https://github.com/odkey/)
+
+# 見やすい2行プロンプト
 PROMPT='
 %F{green}%n@%M [ %W %T ]
 %F{yellow}%~%f
 %F{blue}%B>%b%f '
 
-setopt auto_cd
-setopt auto_pushd
-
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-
 alias l='ls'
 
-alias cot='open -a "CotEditor"'
-alias atom='open -a "Atom"'
-alias md='open -a "Typora"'
+# fnm を使う場合はディレクトリ移動時に自動で Node.js のバージョンを切り替える
+if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env --use-on-cd --shell zsh)"
+fi
